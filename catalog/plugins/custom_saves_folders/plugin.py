@@ -1598,7 +1598,7 @@ class CustomSavesFoldersPlugin:
                     addons_dest = os.path.join(os.getenv(appdata), new_folder_name, addon_folder)
                     backup_manager.mark_file_added(game_id, addons_dest)
                     if not os.path.exists(addons_dest):
-                        os.mkdir(addons_dest)
+                        os.makedirs(addons_dest, exist_ok=True)
                     for addon in addons:
                         if not addon in os.listdir(addons_dest):
                             backup_manager.mark_file_added(game_id, os.path.join(addons_dest, addon))
