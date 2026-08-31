@@ -72,7 +72,11 @@ def is_process_identity_running(identity: ProcessIdentity) -> bool:
     pid, created_at = identity
     try:
         process = psutil.Process(pid)
-        return process.is_running() and process.create_time() == created_at
+        return (
+            process.is_running()
+            and process.status() != psutil.STATUS_ZOMBIE
+            and process.create_time() == created_at
+        )
     except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
         return False
 

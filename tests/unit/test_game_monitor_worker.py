@@ -2,7 +2,10 @@
 
 from unittest.mock import Mock, patch
 
-from services.game_detection_service import GameProcessTracker
+from services.game_detection_service import (
+    GameProcessTracker,
+    is_process_identity_running,
+)
 from workers.game_monitor_worker import GameMonitorWorker
 
 
@@ -135,6 +138,16 @@ def test_monitor_keeps_child_after_launcher_handoff(qapp):
         tracker = GameProcessTracker(100, ("DELTARUNE.exe",))
         assert tracker.refresh() is True
         assert tracker.tracked == {game}
+
+
+def test_zombie_process_is_not_tracked_as_running():
+    process = Mock()
+    process.is_running.return_value = True
+    process.status.return_value = "zombie"
+    process.create_time.return_value = 1.0
+
+    with patch("services.game_detection_service.psutil.Process", return_value=process):
+        assert is_process_identity_running((100, 1.0)) is False
 
 
 def test_monitor_uses_known_process_names_when_none_are_supplied():
